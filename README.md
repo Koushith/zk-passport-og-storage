@@ -41,6 +41,7 @@ const [txHash] = await indexer.upload(zgFile, RPC_URL, signer);
 **Why 0G Storage?**
 - Decentralized & censorship-resistant
 - Content-addressed via merkle root hash
+
 - Permanent storage for audit trails
 - Web3-native integration
 
@@ -91,7 +92,7 @@ contract ProofRegistry {
 <img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 44 01 PM" src="https://github.com/user-attachments/assets/86dd4bf5-60f3-4016-963a-4104b60f0279" />
 
 ![IMG_D3D6441F71B0-1](https://github.com/user-attachments/assets/b93a29a0-9951-4b5d-b827-d39da94d9631)
-
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 46 41 PM" src="https://github.com/user-attachments/assets/c78ce026-b613-47ae-af80-919555e99b7d" />
 
 ## Architecture
 
