@@ -1,11 +1,17 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Loader2, ScanLine, ShieldCheck, User, Calendar, Globe, FileText } from 'lucide-react';
+import { X, Check, Loader2, ScanLine, ShieldCheck, User, Calendar, Globe, FileText, Upload, Database, Copy } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
-export function ResultModal({ show, onClose, result, url, loadingState }) {
+export function ResultModal({ show, onClose, result, url, loadingState, onStoreProof, storedHash, isStoring }) {
     if (!show && !url && !loadingState) return null;
 
     const isSuccess = true;
+
+    const copyHash = () => {
+        if (storedHash) {
+            navigator.clipboard.writeText(storedHash);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -24,7 +30,7 @@ export function ResultModal({ show, onClose, result, url, loadingState }) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.98, y: 10 }}
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="relative w-full max-w-xl bg-white shadow-2xl overflow-hidden"
+                        className="relative w-full max-w-xl bg-white shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
                     >
                         <button
                             onClick={onClose}
@@ -152,9 +158,49 @@ export function ResultModal({ show, onClose, result, url, loadingState }) {
                                         </div>
                                     )}
 
+                                    {/* 0G Storage Section */}
+                                    {isSuccess && result && (
+                                        <div className="w-full mt-8 pt-8 border-t border-stone-100">
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <Database className="w-4 h-4 text-stone-500" />
+                                                <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">0G Decentralized Storage</p>
+                                            </div>
+
+                                            {storedHash ? (
+                                                <div className="bg-green-50 border border-green-200 p-4">
+                                                    <p className="text-xs text-green-800 font-medium mb-2">Proof Stored on 0G Network</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-[10px] font-mono text-green-700 break-all flex-1">{storedHash}</p>
+                                                        <button onClick={copyHash} className="p-1 hover:bg-green-100 rounded">
+                                                            <Copy className="w-3 h-3 text-green-700" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={onStoreProof}
+                                                    disabled={isStoring}
+                                                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
+                                                >
+                                                    {isStoring ? (
+                                                        <>
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            Storing to 0G...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Upload className="w-4 h-4" />
+                                                            Store Proof to 0G
+                                                        </>
+                                                    )}
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <button
                                         onClick={onClose}
-                                        className="mt-10 px-8 py-4 bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#c5a47e] transition-colors w-full duration-500"
+                                        className="mt-8 px-8 py-4 bg-[#1a1a1a] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#c5a47e] transition-colors w-full duration-500"
                                     >
                                         Done
                                     </button>
