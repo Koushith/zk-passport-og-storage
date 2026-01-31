@@ -79,6 +79,19 @@ contract ProofRegistry {
 - Timestamps for audit compliance
 
 ---
+### Screenshots
+
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 31 19 PM" src="https://github.com/user-attachments/assets/6b1d9458-a2dc-4444-bb29-8f98a168267f" />
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 43 09 PM" src="https://github.com/user-attachments/assets/a08bba0b-a0b9-46d7-b31e-12d18f163de7" />
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 43 28 PM" src="https://github.com/user-attachments/assets/0f0d8b73-fc13-4d29-97dd-c8b5b2b506b6" />
+
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 43 35 PM" src="https://github.com/user-attachments/assets/9fb49446-ca1a-4af8-b748-1b7878662ba5" />
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 43 54 PM" src="https://github.com/user-attachments/assets/7316908a-095b-4a88-8142-56cf28bceaec" />
+
+<img width="2056" height="1217" alt="Screenshot 2026-01-31 at 4 44 01 PM" src="https://github.com/user-attachments/assets/86dd4bf5-60f3-4016-963a-4104b60f0279" />
+
+![IMG_D3D6441F71B0-1](https://github.com/user-attachments/assets/b93a29a0-9951-4b5d-b827-d39da94d9631)
+
 
 ## Architecture
 
