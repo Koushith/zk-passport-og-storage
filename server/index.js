@@ -30,6 +30,15 @@ app.use(express.json({ limit: '10mb' }));
 const RPC_URL = 'https://evmrpc.0g.ai/';
 const INDEXER_RPC = 'https://indexer-storage-turbo.0g.ai';
 
+// ProofRegistry contract
+const REGISTRY_CONTRACT = process.env.REGISTRY_CONTRACT;
+const REGISTRY_ABI = [
+  'function registerProof(bytes32 proofHash) external',
+  'function revokeProof(bytes32 proofHash) external',
+  'function isProofValid(bytes32 proofHash) external view returns (bool exists, bool valid)',
+  'function getProofRecord(bytes32 proofHash) external view returns (bool exists, bool valid, uint256 registeredAt, uint256 revokedAt, address registeredBy)',
+];
+
 // Demo mode disabled - using mainnet
 const DEMO_MODE = false;
 
@@ -154,10 +163,26 @@ app.post('/api/upload', async (req, res) => {
 
     console.log('Upload successful! Tx:', txHash);
 
+    // Register on-chain if contract is configured
+    let registryTx = null;
+    if (REGISTRY_CONTRACT) {
+      try {
+        console.log('Registering proof on-chain...');
+        const registry = new ethers.Contract(REGISTRY_CONTRACT, REGISTRY_ABI, signer);
+        const tx = await registry.registerProof(rootHash);
+        await tx.wait();
+        registryTx = tx.hash;
+        console.log('Registered on-chain! Tx:', registryTx);
+      } catch (regErr) {
+        console.error('Registry error (non-fatal):', regErr.message);
+      }
+    }
+
     res.json({
       success: true,
       rootHash,
       txHash,
+      registryTx,
       walletAddress: address,
     });
   } catch (error) {
@@ -251,9 +276,76 @@ app.get('/api/wallet', async (req, res) => {
   }
 });
 
+// Check on-chain proof status
+app.get('/api/registry/:hash', async (req, res) => {
+  const { hash } = req.params;
+
+  if (!REGISTRY_CONTRACT) {
+    return res.status(400).json({ error: 'Registry contract not configured' });
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const registry = new ethers.Contract(REGISTRY_CONTRACT, REGISTRY_ABI, provider);
+
+    const [exists, valid, registeredAt, revokedAt, registeredBy] = await registry.getProofRecord(hash);
+
+    res.json({
+      success: true,
+      proofHash: hash,
+      onChain: {
+        exists,
+        valid,
+        registeredAt: exists ? Number(registeredAt) * 1000 : null,
+        revokedAt: revokedAt > 0 ? Number(revokedAt) * 1000 : null,
+        registeredBy: exists ? registeredBy : null,
+      },
+      contractAddress: REGISTRY_CONTRACT,
+    });
+  } catch (error) {
+    console.error('Registry check error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Revoke proof on-chain
+app.post('/api/registry/revoke', async (req, res) => {
+  const { proofHash } = req.body;
+
+  if (!proofHash) {
+    return res.status(400).json({ error: 'Missing proofHash' });
+  }
+
+  if (!REGISTRY_CONTRACT) {
+    return res.status(400).json({ error: 'Registry contract not configured' });
+  }
+
+  try {
+    const privateKey = getPrivateKey();
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const signer = new ethers.Wallet(privateKey, provider);
+    const registry = new ethers.Contract(REGISTRY_CONTRACT, REGISTRY_ABI, signer);
+
+    console.log('Revoking proof:', proofHash);
+    const tx = await registry.revokeProof(proofHash);
+    await tx.wait();
+
+    console.log('Revoked! Tx:', tx.hash);
+
+    res.json({
+      success: true,
+      proofHash,
+      txHash: tx.hash,
+    });
+  } catch (error) {
+    console.error('Revoke error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', registryContract: REGISTRY_CONTRACT || null });
 });
 
 const PORT = process.env.PORT || 3001;

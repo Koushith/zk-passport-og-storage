@@ -5,7 +5,7 @@ import { Shield, Globe, UserCheck, ScanFace, Building2, Sparkles } from 'lucide-
 import { VerificationCard } from './components/VerificationCard.jsx';
 import { ResultModal } from './components/ResultModal.jsx';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function App() {
   const [url, setUrl] = useState('');
