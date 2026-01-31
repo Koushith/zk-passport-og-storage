@@ -8,21 +8,23 @@ export function VerificationCard({ title, description, icon: Icon, onClick, dela
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
             onClick={onClick}
-            className="group relative w-full text-left bg-white p-8 hover:bg-[#faf9f6] transition-all duration-500 border-b border-stone-200 hover:border-[#c5a47e]"
+            className="group relative w-full text-left bg-white p-8 shadow-sm hover:shadow-lg transition-all duration-500 border border-stone-100 hover:border-amber-200"
         >
-            <div className="flex flex-col h-full">
-                <div className="flex items-start justify-between mb-8">
-                    <div className="text-stone-500 group-hover:text-[#c5a47e] transition-colors duration-500">
-                        <Icon className="w-6 h-6 stroke-[1.5]" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-amber-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+
+            <div className="flex flex-col h-full min-h-[180px]">
+                <div className="flex items-start justify-between mb-6">
+                    <div className="w-12 h-12 rounded-full bg-stone-50 flex items-center justify-center group-hover:bg-amber-50 transition-colors duration-500">
+                        <Icon className="w-5 h-5 text-stone-400 group-hover:text-amber-600 transition-colors duration-500" />
                     </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
-                        <ArrowRight className="w-5 h-5 text-[#c5a47e]" />
+                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-2 group-hover:translate-x-0">
+                        <ArrowRight className="w-5 h-5 text-amber-500" />
                     </div>
                 </div>
 
                 <div className="mt-auto">
-                    <h3 className="text-lg font-serif text-stone-900 mb-3 tracking-wide">{title}</h3>
-                    <p className="text-sm text-stone-600 leading-relaxed font-normal tracking-wide">{description}</p>
+                    <h3 className="text-xl font-serif text-stone-800 mb-2">{title}</h3>
+                    <p className="text-sm text-stone-500 leading-relaxed">{description}</p>
                 </div>
             </div>
         </motion.button>

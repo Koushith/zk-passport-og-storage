@@ -1,0 +1,75 @@
+{
+  "proof": {
+    "rawProof": {
+      "nationality": {
+        "disclose": {
+          "result": "ZKR"
+        }
+      },
+      "birthdate": {
+        "disclose": {
+          "result": "1995-11-12T00:00:00.000Z"
+        }
+      },
+      "fullname": {
+        "disclose": {
+          "result": "John Miller Smith"
+        }
+      },
+      "expiry_date": {
+        "disclose": {
+          "result": "2035-01-01T00:00:00.000Z"
+        }
+      },
+      "document_number": {
+        "disclose": {
+          "result": "ZP1111111"
+        }
+      },
+      "sanctions": {
+        "passed": true,
+        "countries": {
+          "US": {
+            "passed": true
+          },
+          "GB": {
+            "passed": true
+          },
+          "EU": {
+            "passed": true
+          },
+          "CH": {
+            "passed": true
+          }
+        },
+        "lists": {
+          "US_OFAC_SDN": {
+            "passed": true
+          },
+          "CH_SECO_SANCTIONS": {
+            "passed": true
+          },
+          "EU_FSF_SANCTIONS": {
+            "passed": true
+          },
+          "GB_FCDO_SANCTIONS": {
+            "passed": true
+          }
+        },
+        "isStrict": false
+      }
+    },
+    "verified": false,
+    "type": "kyc",
+    "timestamp": 1769851797688,
+    "issuer": "zkpassport",
+    "attestation": {
+      "hotelId": "grand-hotel-001",
+      "verifiedAt": 1769851797745,
+      "verifierAddress": "0xa44608f134e02Fe4479a551173cE4EE0348Edc1F"
+    }
+  },
+  "proofHash": "0x4f18a5fdfccb897b700346f50ccbe0611d2c03c0470b5b33c6fd5f3186eef91e",
+  "hotelSignature": "0x09825571ea83e22f04e2985e739f35fda894e4e105ce6d367faf5b85de3eb0ef1023e9a29cd860c5bcc42064d9ce1e0826fd1d2139e5646863754a401286e88a1b",
+  "signerAddress": "0xa44608f134e02Fe4479a551173cE4EE0348Edc1F"
+}

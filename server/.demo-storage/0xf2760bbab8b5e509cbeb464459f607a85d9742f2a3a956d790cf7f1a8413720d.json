@@ -1,0 +1,24 @@
+{
+  "proof": {
+    "rawProof": {
+      "age": {
+        "gte": {
+          "expected": 18,
+          "result": true
+        }
+      }
+    },
+    "verified": false,
+    "type": "age",
+    "timestamp": 1769852207244,
+    "issuer": "zkpassport",
+    "attestation": {
+      "hotelId": "grand-hotel-001",
+      "verifiedAt": 1769852207258,
+      "verifierAddress": "0xa44608f134e02Fe4479a551173cE4EE0348Edc1F"
+    }
+  },
+  "proofHash": "0xf2760bbab8b5e509cbeb464459f607a85d9742f2a3a956d790cf7f1a8413720d",
+  "hotelSignature": "0x1c434c3763affb7bca6c782af74332261a20661f163ec1abd596d978c46b4c4e7d40c6808c9d780e968a14904e0822f1a1c613a0590143cbdee20041e7acecd51c",
+  "signerAddress": "0xa44608f134e02Fe4479a551173cE4EE0348Edc1F"
+}

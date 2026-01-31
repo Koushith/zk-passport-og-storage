@@ -1,12 +1,12 @@
-import express from 'express';
-import cors from 'cors';
 import { Indexer, ZgFile } from '@0glabs/0g-ts-sdk';
-import { ethers } from 'ethers';
-import { writeFileSync, unlinkSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { tmpdir } from 'os';
-import { fileURLToPath } from 'url';
+import cors from 'cors';
 import { createHash } from 'crypto';
+import { ethers } from 'ethers';
+import express from 'express';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const envPath = join(__dirname, '.env');
 if (existsSync(envPath)) {
   const envContent = readFileSync(envPath, 'utf-8');
-  envContent.split('\n').forEach(line => {
+  envContent.split('\n').forEach((line) => {
     const [key, ...valueParts] = line.split('=');
     if (key && valueParts.length) {
       process.env[key.trim()] = valueParts.join('=').trim();
@@ -26,11 +26,12 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const TESTNET_RPC = 'https://evmrpc-testnet.0g.ai/';
-const INDEXER_RPC = 'https://indexer-storage-testnet-turbo.0g.ai';
+// MAINNET endpoints
+const RPC_URL = 'https://evmrpc.0g.ai/';
+const INDEXER_RPC = 'https://indexer-storage-turbo.0g.ai';
 
-// Demo mode - set to true when 0G testnet is down
-const DEMO_MODE = process.env.DEMO_MODE === 'true';
+// Demo mode disabled - using mainnet
+const DEMO_MODE = false;
 
 // Demo storage directory
 const DEMO_STORAGE_DIR = join(__dirname, '.demo-storage');
@@ -58,20 +59,47 @@ app.post('/api/upload', async (req, res) => {
   // Demo mode - store locally when 0G is down
   if (DEMO_MODE) {
     console.log('DEMO MODE: Storing proof locally...');
-    const proofJson = JSON.stringify(proofArtifact, null, 2);
-    const demoHash = '0x' + createHash('sha256').update(proofJson).digest('hex');
+
+    // Get server's signing wallet
+    const privateKey = getPrivateKey();
+    const wallet = new ethers.Wallet(privateKey);
+
+    // Create proof with hotel attestation
+    const proofWithAttestation = {
+      ...proofArtifact,
+      attestation: {
+        hotelId: 'grand-hotel-001',
+        verifiedAt: Date.now(),
+        verifierAddress: wallet.address,
+      },
+    };
+
+    const proofJson = JSON.stringify(proofWithAttestation, null, 2);
+    const proofHash = '0x' + createHash('sha256').update(proofJson).digest('hex');
+
+    // Hotel signs the proof hash - proves hotel witnessed this verification
+    const signature = await wallet.signMessage(proofHash);
+
+    // Final stored object includes signature
+    const signedProof = {
+      proof: proofWithAttestation,
+      proofHash,
+      hotelSignature: signature,
+      signerAddress: wallet.address,
+    };
+
+    // Simulate network delay (1.5-2.5 seconds)
+    await new Promise((resolve) => setTimeout(resolve, 1500 + Math.random() * 1000));
 
     // Store proof locally
-    const filePath = join(DEMO_STORAGE_DIR, `${demoHash}.json`);
-    writeFileSync(filePath, proofJson);
-    console.log('DEMO MODE: Stored at', demoHash);
+    const filePath = join(DEMO_STORAGE_DIR, `${proofHash}.json`);
+    writeFileSync(filePath, JSON.stringify(signedProof, null, 2));
+    console.log('DEMO MODE: Stored signed proof at', proofHash);
 
     return res.json({
       success: true,
-      rootHash: demoHash,
+      rootHash: proofHash,
       txHash: '0xdemo_' + Date.now(),
-      walletAddress: 'demo-mode',
-      note: 'DEMO MODE - Proof stored locally (0G testnet down)',
     });
   }
 
@@ -85,7 +113,7 @@ app.post('/api/upload', async (req, res) => {
     writeFileSync(tempPath, proofJson);
 
     // Create signer
-    const provider = new ethers.JsonRpcProvider(TESTNET_RPC);
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
     const signer = new ethers.Wallet(privateKey, provider);
     const address = await signer.getAddress();
     console.log('Wallet address:', address);
@@ -115,7 +143,7 @@ app.post('/api/upload', async (req, res) => {
     const indexer = new Indexer(INDEXER_RPC);
     console.log('Starting upload to 0G...');
 
-    const [txHash, uploadErr] = await indexer.upload(zgFile, TESTNET_RPC, signer);
+    const [txHash, uploadErr] = await indexer.upload(zgFile, RPC_URL, signer);
 
     await zgFile.close();
     unlinkSync(tempPath);
@@ -147,11 +175,29 @@ app.get('/api/proof/:hash', async (req, res) => {
     const localPath = join(DEMO_STORAGE_DIR, `${hash}.json`);
     if (existsSync(localPath)) {
       console.log('DEMO MODE: Found proof locally:', hash);
-      const proofData = JSON.parse(readFileSync(localPath, 'utf-8'));
+      const storedData = JSON.parse(readFileSync(localPath, 'utf-8'));
+
+      // Verify hotel signature
+      let signatureValid = false;
+      let verificationError = null;
+
+      try {
+        const recoveredAddress = ethers.verifyMessage(storedData.proofHash, storedData.hotelSignature);
+        signatureValid = recoveredAddress.toLowerCase() === storedData.signerAddress.toLowerCase();
+      } catch (err) {
+        verificationError = err.message;
+      }
+
       return res.json({
         success: true,
         rootHash: hash,
-        proofData,
+        proofData: storedData.proof,
+        hotelAttestation: {
+          signatureValid,
+          signerAddress: storedData.signerAddress,
+          signature: storedData.hotelSignature,
+          verificationError,
+        },
         source: 'Demo Storage (local)',
       });
     }
@@ -190,7 +236,7 @@ app.get('/api/proof/:hash', async (req, res) => {
 app.get('/api/wallet', async (req, res) => {
   try {
     const privateKey = getPrivateKey();
-    const provider = new ethers.JsonRpcProvider(TESTNET_RPC);
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
     const signer = new ethers.Wallet(privateKey, provider);
     const address = await signer.getAddress();
     const balance = await provider.getBalance(address);
@@ -198,7 +244,7 @@ app.get('/api/wallet', async (req, res) => {
     res.json({
       address,
       balance: ethers.formatEther(balance),
-      network: '0G Newton Testnet',
+      network: '0G Mainnet',
     });
   } catch (error) {
     res.status(500).json({ error: error.message });

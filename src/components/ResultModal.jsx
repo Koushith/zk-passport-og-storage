@@ -43,30 +43,30 @@ export function ResultModal({ show, onClose, result, url, loadingState, onStoreP
                             {!show ? (
                                 // QR Code State
                                 <div className="flex flex-col items-center text-center">
-                                    <div className="mb-10 relative">
-                                        <div className="relative bg-white p-6 border border-stone-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-                                            <QRCodeSVG value={url} size={280} level="H" fgColor="#000000" bgColor="#FFFFFF" />
-                                        </div>
-
-                                        {loadingState && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-full min-w-[240px]"
-                                            >
-                                                <div className="flex items-center justify-center gap-3 px-6 py-4 bg-white border border-stone-100 shadow-lg">
-                                                    <Loader2 className="w-4 h-4 text-[#c5a47e] animate-spin" />
-                                                    <span className="text-xs font-medium tracking-widest uppercase text-stone-500">
-                                                        {loadingState === 'received' ? 'Request Received' : 'Generating Proof...'}
-                                                    </span>
-                                                </div>
-                                            </motion.div>
-                                        )}
+                                    <div className="bg-white p-6 border border-stone-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-6">
+                                        <QRCodeSVG value={url} size={260} level="H" fgColor="#000000" bgColor="#FFFFFF" />
                                     </div>
 
-                                    <h3 className="text-2xl font-serif text-stone-900 mb-4">Scan to Verify</h3>
-                                    <p className="text-stone-600 max-w-xs mx-auto font-normal text-sm leading-relaxed tracking-wide">
-                                        Please scan the QR code with your ZKPassport app to securely share your credentials.
+                                    {loadingState ? (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="mb-6"
+                                        >
+                                            <div className="flex items-center justify-center gap-3 px-6 py-3 bg-stone-900 text-white">
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span className="text-sm font-medium">
+                                                    {loadingState === 'received' ? 'Request received...' : 'Generating proof...'}
+                                                </span>
+                                            </div>
+                                        </motion.div>
+                                    ) : (
+                                        <div className="mb-6 h-[46px]" />
+                                    )}
+
+                                    <h3 className="text-2xl font-serif text-stone-900 mb-3">Scan to Verify</h3>
+                                    <p className="text-stone-500 max-w-xs mx-auto text-sm">
+                                        Scan the QR code with your ZKPassport app
                                     </p>
                                 </div>
                             ) : (
