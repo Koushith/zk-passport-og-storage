@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Cormorant Garamond', serif;
+    background-color: #f8f9fa;
+    color: #0c0a09;
+}
+
+.font-serif {
+    font-family: 'Cinzel', serif;
+}
+
+@layer utilities {
+    .hotel-card {
+        @apply bg-white border border-stone-200 shadow-sm hover:shadow-md transition-all duration-300;
+    }
+
+    .hotel-button {
+        @apply bg-stone-900 text-white hover:bg-stone-800 transition-colors duration-300;
+    }
+
+    .serif-heading {
+        font-family: 'Cinzel', serif;
+    }
+}
