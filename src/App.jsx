@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ZKPassport, EU_COUNTRIES } from '@zkpassport/sdk';
 import { motion } from 'framer-motion';
-import { Shield, Globe, UserCheck, ScanFace, Building2, Database, Search, Key } from 'lucide-react';
+import { Shield, Globe, UserCheck, ScanFace, Building2, Database, Search, Wallet, CheckCircle } from 'lucide-react';
 import { VerificationCard } from './components/VerificationCard.jsx';
 import { ResultModal } from './components/ResultModal.jsx';
 
@@ -14,13 +14,27 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [storedHash, setStoredHash] = useState('');
   const [isStoring, setIsStoring] = useState(false);
-  const [privateKey, setPrivateKey] = useState('');
+
+  // Server wallet (hotel's wallet for 0G storage)
+  const [serverWallet, setServerWallet] = useState(null);
 
   // Fetch proof state
   const [fetchHash, setFetchHash] = useState('');
   const [fetchedProof, setFetchedProof] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
   const [fetchError, setFetchError] = useState('');
+
+  // Load server wallet info on mount
+  useEffect(() => {
+    fetch(`${API_URL}/wallet`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.address) {
+          setServerWallet(data);
+        }
+      })
+      .catch(err => console.log('Server wallet not configured:', err));
+  }, []);
 
   const closeModal = () => {
     setShowModal(false);
@@ -33,11 +47,6 @@ function App() {
   // Store raw proof to 0G via backend
   const storeProofTo0G = async () => {
     if (!verificationResult) return;
-
-    if (!privateKey) {
-      alert('Please enter your 0G testnet private key first');
-      return;
-    }
 
     setIsStoring(true);
 
@@ -55,7 +64,7 @@ function App() {
       const response = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ proofArtifact, privateKey }),
+        body: JSON.stringify({ proofArtifact }),
       });
 
       const data = await response.json();
@@ -286,28 +295,35 @@ function App() {
           </p>
         </motion.div>
 
-        {/* Wallet Config */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="max-w-xl mx-auto mb-12"
-        >
-          <div className="bg-white p-6 border border-stone-200">
-            <div className="flex items-center gap-2 mb-4">
-              <Key className="w-4 h-4 text-stone-500" />
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-widest">0G Testnet Wallet</p>
+        {/* Server Wallet Status */}
+        {serverWallet && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-xl mx-auto mb-12"
+          >
+            <div className="bg-white p-6 border border-stone-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4 text-stone-500" />
+                  <p className="text-xs font-bold text-stone-500 uppercase tracking-widest">0G Storage Wallet</p>
+                </div>
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-xs text-stone-500">Connected</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-stone-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono text-stone-600">{serverWallet.address.slice(0, 10)}...{serverWallet.address.slice(-8)}</span>
+                  <span className="text-xs text-stone-500">{parseFloat(serverWallet.balance).toFixed(4)} A0GI</span>
+                </div>
+              </div>
             </div>
-            <input
-              type="password"
-              value={privateKey}
-              onChange={(e) => setPrivateKey(e.target.value)}
-              placeholder="Enter private key (0x...)"
-              className="w-full p-3 bg-stone-50 border border-stone-200 text-sm font-mono focus:outline-none focus:border-stone-400"
-            />
-            <p className="text-[10px] text-stone-400 mt-2">Required for storing proofs to 0G. Use testnet wallet only.</p>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-16">

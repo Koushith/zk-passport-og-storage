@@ -1,0 +1,14 @@
+{
+  "rawProof": {
+    "age": {
+      "gte": {
+        "expected": 18,
+        "result": true
+      }
+    }
+  },
+  "verified": false,
+  "type": "age",
+  "timestamp": 1769850929695,
+  "issuer": "zkpassport"
+}

@@ -1,0 +1,65 @@
+{
+  "rawProof": {
+    "nationality": {
+      "disclose": {
+        "result": "ZKR"
+      }
+    },
+    "birthdate": {
+      "disclose": {
+        "result": "1995-11-12T00:00:00.000Z"
+      }
+    },
+    "fullname": {
+      "disclose": {
+        "result": "John Miller Smith"
+      }
+    },
+    "expiry_date": {
+      "disclose": {
+        "result": "2035-01-01T00:00:00.000Z"
+      }
+    },
+    "document_number": {
+      "disclose": {
+        "result": "ZP1111111"
+      }
+    },
+    "sanctions": {
+      "passed": true,
+      "countries": {
+        "US": {
+          "passed": true
+        },
+        "GB": {
+          "passed": true
+        },
+        "EU": {
+          "passed": true
+        },
+        "CH": {
+          "passed": true
+        }
+      },
+      "lists": {
+        "US_OFAC_SDN": {
+          "passed": true
+        },
+        "CH_SECO_SANCTIONS": {
+          "passed": true
+        },
+        "EU_FSF_SANCTIONS": {
+          "passed": true
+        },
+        "GB_FCDO_SANCTIONS": {
+          "passed": true
+        }
+      },
+      "isStrict": false
+    }
+  },
+  "verified": false,
+  "type": "kyc",
+  "timestamp": 1769850967741,
+  "issuer": "zkpassport"
+}
